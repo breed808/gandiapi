@@ -34,7 +34,7 @@ type ZoneResponse struct {
 }
 
 // ListZones retrieves a list of zones.
-func (c *Client) ListZones() ([]ZoneResponse, error) {
+func (c *Client) GetZones() ([]ZoneResponse, error) {
 	urlZones := fmt.Sprintf("%s/zones", defaultBaseURL)
 	u, err := url.Parse(urlZones)
 	if err != nil {
