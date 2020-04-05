@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -41,7 +42,7 @@ func (c *Client) GetRecords(zoneID string) ([]Record, error) {
 
 	switch resp.StatusCode {
 	case http.StatusForbidden:
-		return nil, ErrHttpForbidden
+		return nil, ErrHTTPForbidden
 	case http.StatusUnauthorized:
 		return nil, ErrNonAPIKey
 	}
@@ -81,7 +82,7 @@ func (c *Client) CreateRecord(data Record, zoneID string) error {
 
 	switch resp.StatusCode {
 	case http.StatusForbidden:
-		return ErrHttpForbidden
+		return ErrHTTPForbidden
 	case http.StatusUnauthorized:
 		return ErrNonAPIKey
 	}
@@ -97,4 +98,43 @@ func (c *Client) CreateRecord(data Record, zoneID string) error {
 	fmt.Println(createResponse)
 
 	return nil
+}
+
+// GetRecordsText returns a text version of the zone.
+func (c *Client) GetRecordsText(zoneID string) (*string, error) {
+	urlRecords := fmt.Sprintf("%s/zones/%s/records", defaultBaseURL, zoneID)
+	u, err := url.Parse(urlRecords)
+	if err != nil {
+		return nil, err
+	}
+
+	req := http.Request{
+		URL:    u,
+		Header: make(http.Header),
+		Method: http.MethodGet,
+	}
+
+	req.Header.Add("X-Api-Key", c.APIKey)
+	req.Header.Add("Accept", "text/plain")
+
+	resp, err := c.http.Do(&req)
+	if err != nil {
+		return nil, err
+	}
+
+	switch resp.StatusCode {
+	case http.StatusForbidden:
+		return nil, ErrHTTPForbidden
+	case http.StatusUnauthorized:
+		return nil, ErrNonAPIKey
+	}
+	defer resp.Body.Close()
+
+	textRecordData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	text := string(textRecordData)
+
+	return &text, nil
 }

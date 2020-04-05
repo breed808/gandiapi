@@ -10,11 +10,11 @@ import (
 
 const defaultBaseURL = "https://dns.api.gandi.net/api/v5/"
 
-// ErrErrNonAPIKey holds errors when API key is not found.
+// ErrNonAPIKey holds errors when API key is not found.
 var ErrNonAPIKey = errors.New("not API Key defined")
 
-// ErrHttpForbidden returns HTTP 403
-var ErrHttpForbidden = errors.New("request forbidden")
+// ErrHTTPForbidden returns HTTP 403
+var ErrHTTPForbidden = errors.New("request forbidden")
 
 // ZoneResponse struct stores response from zones endpoint.
 type ZoneResponse struct {
@@ -33,7 +33,7 @@ type ZoneResponse struct {
 	Name            string `json:"name"`
 }
 
-// ListZones retrieves a list of zones.
+// GetZones retrieves a list of zones.
 func (c *Client) GetZones() ([]ZoneResponse, error) {
 	urlZones := fmt.Sprintf("%s/zones", defaultBaseURL)
 	u, err := url.Parse(urlZones)
@@ -55,7 +55,7 @@ func (c *Client) GetZones() ([]ZoneResponse, error) {
 
 	switch resp.StatusCode {
 	case http.StatusForbidden:
-		return nil, ErrHttpForbidden
+		return nil, ErrHTTPForbidden
 	case http.StatusUnauthorized:
 		return nil, ErrNonAPIKey
 	}
