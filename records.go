@@ -75,7 +75,6 @@ func (c *Client) CreateRecord(data Record, zoneID string) error {
 
 	resp, err := c.http.Do(req)
 	if err != nil {
-		log.Println("Do request")
 		return err
 	}
 
