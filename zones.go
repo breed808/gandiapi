@@ -16,6 +16,9 @@ var ErrNonAPIKey = errors.New("not API Key defined")
 // ErrHTTPForbidden returns HTTP 403
 var ErrHTTPForbidden = errors.New("request forbidden")
 
+// ErrBadRequest returns HTTP 400
+var ErrBadRequest = errors.New("HTTP 400 bad request")
+
 // ZoneResponse struct stores response from zones endpoint.
 type ZoneResponse struct {
 	Retry           int    `json:"retry"`

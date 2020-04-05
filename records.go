@@ -66,7 +66,6 @@ func (c *Client) CreateRecord(data Record, zoneID string) error {
 		return err
 	}
 
-	fmt.Println(data)
 	dataSend := bytes.NewReader(dataJSON)
 	req, err := http.NewRequest(http.MethodPost, urlRecords, dataSend)
 
@@ -137,4 +136,38 @@ func (c *Client) GetRecordsText(zoneID string) (*string, error) {
 	text := string(textRecordData)
 
 	return &text, nil
+}
+
+// DeleteRecord removes a given record name
+func (c *Client) DeleteRecord(zoneID, recordName string) error {
+	urlRecords := fmt.Sprintf("%s/zones/%s/records/%s", defaultBaseURL, zoneID, recordName)
+	u, err := url.Parse(urlRecords)
+	if err != nil {
+		return err
+	}
+
+	req := http.Request{
+		URL:    u,
+		Header: make(http.Header),
+		Method: http.MethodDelete,
+	}
+
+	req.Header.Add("X-Api-Key", c.APIKey)
+
+	resp, err := c.http.Do(&req)
+	if err != nil {
+		return err
+	}
+
+	switch resp.StatusCode {
+	case http.StatusForbidden:
+		return ErrHTTPForbidden
+	case http.StatusUnauthorized:
+		return ErrNonAPIKey
+	case http.StatusBadRequest:
+		return ErrBadRequest
+	}
+	defer resp.Body.Close()
+
+	return nil
 }
