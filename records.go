@@ -171,3 +171,39 @@ func (c *Client) DeleteRecord(zoneID, recordName string) error {
 
 	return nil
 }
+
+// DeleteRecordsZone removes all the records in a given zone.
+// TODO: do testing, I don't want to delete all records of one of my zones.
+func (c *Client) DeleteRecordsZone(zoneID string) error {
+	urlRecords := fmt.Sprintf("%s/zones/%s/records", defaultBaseURL, zoneID)
+	u, err := url.Parse(urlRecords)
+	if err != nil {
+		return err
+	}
+
+	req := http.Request{
+		URL:    u,
+		Header: make(http.Header),
+		Method: http.MethodDelete,
+	}
+
+	req.Header.Add("X-Api-Key", c.APIKey)
+	req.Header.Add("Content-Type", "application/json")
+
+	resp, err := c.http.Do(&req)
+	if err != nil {
+		return err
+	}
+
+	switch resp.StatusCode {
+	case http.StatusForbidden:
+		return ErrHTTPForbidden
+	case http.StatusUnauthorized:
+		return ErrNonAPIKey
+	case http.StatusBadRequest:
+		return ErrBadRequest
+	}
+	defer resp.Body.Close()
+
+	return nil
+}
