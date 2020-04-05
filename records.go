@@ -207,3 +207,38 @@ func (c *Client) DeleteRecordsZone(zoneID string) error {
 
 	return nil
 }
+
+// DeleteRecordType deletes a record that matches name and type
+func (c *Client) DeleteRecordType(zoneID, recordName, recordType string) error {
+	urlRecords := fmt.Sprintf("%s/zones/%s/records/%s/%s", defaultBaseURL, zoneID, recordName, recordType)
+	u, err := url.Parse(urlRecords)
+	if err != nil {
+		return err
+	}
+
+	req := http.Request{
+		URL:    u,
+		Header: make(http.Header),
+		Method: http.MethodDelete,
+	}
+
+	req.Header.Add("X-Api-Key", c.APIKey)
+	req.Header.Add("Content-Type", "application/json")
+
+	resp, err := c.http.Do(&req)
+	if err != nil {
+		return err
+	}
+
+	switch resp.StatusCode {
+	case http.StatusForbidden:
+		return ErrHTTPForbidden
+	case http.StatusUnauthorized:
+		return ErrNonAPIKey
+	case http.StatusBadRequest:
+		return ErrBadRequest
+	}
+	defer resp.Body.Close()
+
+	return nil
+}
