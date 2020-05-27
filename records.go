@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+
+	"github.com/sgmac/gandigo/internal/requests"
 )
 
 // Record represents a Record object
@@ -21,19 +23,11 @@ type Record struct {
 
 // GetRecords returns a slice of Record
 func (c *Client) GetRecords(zoneID string) ([]Record, error) {
-	urlRecords := fmt.Sprintf("%s/zones/%s/records", defaultBaseURL, zoneID)
-	u, err := url.Parse(urlRecords)
+
+	req, err := requests.Do(defaultBaseURL, http.MethodGet, zoneID, c.APIKey, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	req := http.Request{
-		URL:    u,
-		Header: make(http.Header),
-		Method: http.MethodGet,
-	}
-
-	req.Header.Add("X-Api-Key", c.APIKey)
 
 	resp, err := c.http.Do(&req)
 	if err != nil {
