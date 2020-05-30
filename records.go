@@ -5,9 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"net/url"
 
 	"github.com/sgmac/gandigo/internal/requests"
 )
@@ -23,13 +21,13 @@ type Record struct {
 
 // GetRecords returns a slice of Record
 func (c *Client) GetRecords(zoneID string) ([]Record, error) {
-
-	req, err := requests.Do(defaultBaseURL, http.MethodGet, zoneID, c.APIKey, nil)
+	reqURL := fmt.Sprintf("%s/zones/%s/records", defaultBaseURL, zoneID)
+	req, err := requests.Do(reqURL, http.MethodGet, c.APIKey, nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.http.Do(&req)
+	resp, err := c.http.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -53,19 +51,19 @@ func (c *Client) GetRecords(zoneID string) ([]Record, error) {
 
 // CreateRecord adds a new record for a given zone.
 func (c *Client) CreateRecord(data Record, zoneID string) error {
-	urlRecords := fmt.Sprintf("%szones/%s/records", defaultBaseURL, zoneID)
+	reqURL := fmt.Sprintf("%s/zones/%s/records", defaultBaseURL, zoneID)
 	dataJSON, err := json.Marshal(data)
-	fmt.Println(string(dataJSON))
 	if err != nil {
 		return err
 	}
 
 	dataSend := bytes.NewReader(dataJSON)
-	req, err := http.NewRequest(http.MethodPost, urlRecords, dataSend)
-
-	req.Header.Add("X-Api-Key", c.APIKey)
-	req.Header.Add("Content-Type", "application/json")
-	fmt.Println(req.Header)
+	extraHeaders := make(map[string]string)
+	extraHeaders["Content-Type"] = "application/json"
+	req, err := requests.Do(reqURL, http.MethodPost, c.APIKey, extraHeaders, dataSend)
+	if err != nil {
+		return err
+	}
 
 	resp, err := c.http.Do(req)
 	if err != nil {
@@ -84,70 +82,54 @@ func (c *Client) CreateRecord(data Record, zoneID string) error {
 
 	err = json.NewDecoder(resp.Body).Decode(&createResponse)
 	if err != nil {
-		log.Println("DECODING")
 		return err
 	}
-	fmt.Println(createResponse)
 
 	return nil
 }
 
 // GetRecordsText returns a text version of the zone.
-func (c *Client) GetRecordsText(zoneID string) (*string, error) {
-	urlRecords := fmt.Sprintf("%s/zones/%s/records", defaultBaseURL, zoneID)
-	u, err := url.Parse(urlRecords)
+func (c *Client) GetRecordsText(zoneID string) (string, error) {
+	reqURL := fmt.Sprintf("%s/zones/%s/records", defaultBaseURL, zoneID)
+
+	extraHeaders := make(map[string]string)
+	extraHeaders["Accept"] = "text/plain"
+	req, err := requests.Do(reqURL, http.MethodGet, c.APIKey, extraHeaders, nil)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	req := http.Request{
-		URL:    u,
-		Header: make(http.Header),
-		Method: http.MethodGet,
-	}
-
-	req.Header.Add("X-Api-Key", c.APIKey)
-	req.Header.Add("Accept", "text/plain")
-
-	resp, err := c.http.Do(&req)
+	resp, err := c.http.Do(req)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	switch resp.StatusCode {
 	case http.StatusForbidden:
-		return nil, ErrHTTPForbidden
+		return "", ErrHTTPForbidden
 	case http.StatusUnauthorized:
-		return nil, ErrNonAPIKey
+		return "", ErrNonAPIKey
 	}
 	defer resp.Body.Close()
 
 	textRecordData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	text := string(textRecordData)
 
-	return &text, nil
+	return text, nil
 }
 
 // DeleteRecord removes a given record name
 func (c *Client) DeleteRecord(zoneID, recordName string) error {
-	urlRecords := fmt.Sprintf("%s/zones/%s/records/%s", defaultBaseURL, zoneID, recordName)
-	u, err := url.Parse(urlRecords)
+	reqURL := fmt.Sprintf("%s/zones/%s/records/%s", defaultBaseURL, zoneID, recordName)
+	req, err := requests.Do(reqURL, http.MethodDelete, c.APIKey, nil, nil)
 	if err != nil {
 		return err
 	}
 
-	req := http.Request{
-		URL:    u,
-		Header: make(http.Header),
-		Method: http.MethodDelete,
-	}
-
-	req.Header.Add("X-Api-Key", c.APIKey)
-
-	resp, err := c.http.Do(&req)
+	resp, err := c.http.Do(req)
 	if err != nil {
 		return err
 	}
@@ -168,22 +150,16 @@ func (c *Client) DeleteRecord(zoneID, recordName string) error {
 // DeleteRecordsZone removes all the records in a given zone.
 // TODO: do testing, I don't want to delete all records of one of my zones.
 func (c *Client) DeleteRecordsZone(zoneID string) error {
-	urlRecords := fmt.Sprintf("%s/zones/%s/records", defaultBaseURL, zoneID)
-	u, err := url.Parse(urlRecords)
+	reqURL := fmt.Sprintf("%s/zones/%s/records", defaultBaseURL, zoneID)
+
+	extraHeaders := make(map[string]string)
+	extraHeaders["Content-Type"] = "application/json"
+	req, err := requests.Do(reqURL, http.MethodDelete, c.APIKey, extraHeaders, nil)
 	if err != nil {
 		return err
 	}
 
-	req := http.Request{
-		URL:    u,
-		Header: make(http.Header),
-		Method: http.MethodDelete,
-	}
-
-	req.Header.Add("X-Api-Key", c.APIKey)
-	req.Header.Add("Content-Type", "application/json")
-
-	resp, err := c.http.Do(&req)
+	resp, err := c.http.Do(req)
 	if err != nil {
 		return err
 	}
@@ -203,22 +179,16 @@ func (c *Client) DeleteRecordsZone(zoneID string) error {
 
 // DeleteRecordType deletes a record that matches name and type
 func (c *Client) DeleteRecordType(zoneID, recordName, recordType string) error {
-	urlRecords := fmt.Sprintf("%s/zones/%s/records/%s/%s", defaultBaseURL, zoneID, recordName, recordType)
-	u, err := url.Parse(urlRecords)
+	reqURL := fmt.Sprintf("%s/zones/%s/records/%s/%s", defaultBaseURL, zoneID, recordName, recordType)
+
+	extraHeaders := make(map[string]string)
+	extraHeaders["Content-Type"] = "application/json"
+	req, err := requests.Do(reqURL, http.MethodDelete, c.APIKey, extraHeaders, nil)
 	if err != nil {
 		return err
 	}
 
-	req := http.Request{
-		URL:    u,
-		Header: make(http.Header),
-		Method: http.MethodDelete,
-	}
-
-	req.Header.Add("X-Api-Key", c.APIKey)
-	req.Header.Add("Content-Type", "application/json")
-
-	resp, err := c.http.Do(&req)
+	resp, err := c.http.Do(req)
 	if err != nil {
 		return err
 	}
