@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 	"time"
+
+	"github.com/sgmac/gandigo/internal/requests"
 )
 
 // Snapshot represents information about a given snapshot.
@@ -39,21 +40,13 @@ type SnapshotCreate struct {
 
 // GetSnapshots returns a list of snapshots
 func (c *Client) GetSnapshots(zoneID string) ([]Snapshot, error) {
-	urlRecords := fmt.Sprintf("%s/zones/%s/snapshots", defaultBaseURL, zoneID)
-	u, err := url.Parse(urlRecords)
+	reqURL := fmt.Sprintf("%s/zones/%s/snapshots", defaultBaseURL, zoneID)
+	req, err := requests.Do(reqURL, http.MethodGet, c.APIKey, nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req := http.Request{
-		URL:    u,
-		Header: make(http.Header),
-		Method: http.MethodGet,
-	}
-
-	req.Header.Add("X-Api-Key", c.APIKey)
-
-	resp, err := c.http.Do(&req)
+	resp, err := c.http.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -77,21 +70,13 @@ func (c *Client) GetSnapshots(zoneID string) ([]Snapshot, error) {
 
 // GetSnapshotDetails returns details of a snapshot
 func (c *Client) GetSnapshotDetails(zoneID, snapshotID string) (*SnapshotContent, error) {
-	urlRecords := fmt.Sprintf("%s/zones/%s/snapshots/%s", defaultBaseURL, zoneID, snapshotID)
-	u, err := url.Parse(urlRecords)
+	reqURL := fmt.Sprintf("%s/zones/%s/snapshots/%s", defaultBaseURL, zoneID, snapshotID)
+	req, err := requests.Do(reqURL, http.MethodGet, c.APIKey, nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req := http.Request{
-		URL:    u,
-		Header: make(http.Header),
-		Method: http.MethodGet,
-	}
-
-	req.Header.Add("X-Api-Key", c.APIKey)
-
-	resp, err := c.http.Do(&req)
+	resp, err := c.http.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -115,22 +100,16 @@ func (c *Client) GetSnapshotDetails(zoneID, snapshotID string) (*SnapshotContent
 
 // CreateSnapshot creates a new snapshopt for the given zone.
 func (c *Client) CreateSnapshot(zoneID string) (*SnapshotCreate, error) {
-	urlRecords := fmt.Sprintf("%s/zones/%s/snapshots", defaultBaseURL, zoneID)
-	u, err := url.Parse(urlRecords)
+	reqURL := fmt.Sprintf("%s/zones/%s/snapshots", defaultBaseURL, zoneID)
+	extraHeaders := make(map[string]string)
+	extraHeaders["Content-Type"] = "application/json"
+
+	req, err := requests.Do(reqURL, http.MethodPost, c.APIKey, extraHeaders, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req := http.Request{
-		URL:    u,
-		Header: make(http.Header),
-		Method: http.MethodPost,
-	}
-
-	req.Header.Add("X-Api-Key", c.APIKey)
-	req.Header.Add("Content-Type", "application/json")
-
-	resp, err := c.http.Do(&req)
+	resp, err := c.http.Do(req)
 	if err != nil {
 		return nil, err
 	}
