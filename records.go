@@ -21,7 +21,7 @@ type Record struct {
 
 // GetRecords returns a slice of Record.
 func (c *Client) GetRecords(zoneID string) ([]Record, error) {
-	reqURL := fmt.Sprintf("%s/zones/%s/records", defaultBaseURL, zoneID)
+	reqURL := fmt.Sprintf("%s/zones/%s/records", c.defaultBaseURL, zoneID)
 	req, err := requests.Do(reqURL, http.MethodGet, c.APIKey, nil, nil)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (c *Client) GetRecords(zoneID string) ([]Record, error) {
 
 // CreateRecord adds a new record for a given zone.
 func (c *Client) CreateRecord(data Record, zoneID string) error {
-	reqURL := fmt.Sprintf("%s/zones/%s/records", defaultBaseURL, zoneID)
+	reqURL := fmt.Sprintf("%s/zones/%s/records", c.defaultBaseURL, zoneID)
 	dataJSON, err := json.Marshal(data)
 	if err != nil {
 		return err
@@ -90,7 +90,7 @@ func (c *Client) CreateRecord(data Record, zoneID string) error {
 
 // GetRecordsText returns a text version of the zone.
 func (c *Client) GetRecordsText(zoneID string) (string, error) {
-	reqURL := fmt.Sprintf("%s/zones/%s/records", defaultBaseURL, zoneID)
+	reqURL := fmt.Sprintf("%s/zones/%s/records", c.defaultBaseURL, zoneID)
 
 	extraHeaders := make(map[string]string)
 	extraHeaders["Accept"] = "text/plain"
@@ -123,7 +123,7 @@ func (c *Client) GetRecordsText(zoneID string) (string, error) {
 
 // DeleteRecord removes a given record name.
 func (c *Client) DeleteRecord(zoneID, recordName string) error {
-	reqURL := fmt.Sprintf("%s/zones/%s/records/%s", defaultBaseURL, zoneID, recordName)
+	reqURL := fmt.Sprintf("%s/zones/%s/records/%s", c.defaultBaseURL, zoneID, recordName)
 	req, err := requests.Do(reqURL, http.MethodDelete, c.APIKey, nil, nil)
 	if err != nil {
 		return err
@@ -150,7 +150,7 @@ func (c *Client) DeleteRecord(zoneID, recordName string) error {
 // DeleteRecordsZone removes all the records in a given zone.
 // TODO: do testing, I don't want to delete all records of one of my zones.
 func (c *Client) DeleteRecordsZone(zoneID string) error {
-	reqURL := fmt.Sprintf("%s/zones/%s/records", defaultBaseURL, zoneID)
+	reqURL := fmt.Sprintf("%s/zones/%s/records", c.defaultBaseURL, zoneID)
 
 	extraHeaders := make(map[string]string)
 	extraHeaders["Content-Type"] = "application/json"
@@ -179,7 +179,7 @@ func (c *Client) DeleteRecordsZone(zoneID string) error {
 
 // DeleteRecordType deletes a record that matches name and type.
 func (c *Client) DeleteRecordType(zoneID, recordName, recordType string) error {
-	reqURL := fmt.Sprintf("%s/zones/%s/records/%s/%s", defaultBaseURL, zoneID, recordName, recordType)
+	reqURL := fmt.Sprintf("%s/zones/%s/records/%s/%s", c.defaultBaseURL, zoneID, recordName, recordType)
 
 	extraHeaders := make(map[string]string)
 	extraHeaders["Content-Type"] = "application/json"

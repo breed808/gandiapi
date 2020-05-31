@@ -40,7 +40,7 @@ type SnapshotCreate struct {
 
 // GetSnapshots returns a list of snapshots.
 func (c *Client) GetSnapshots(zoneID string) ([]Snapshot, error) {
-	reqURL := fmt.Sprintf("%s/zones/%s/snapshots", defaultBaseURL, zoneID)
+	reqURL := fmt.Sprintf("%s/zones/%s/snapshots", c.defaultBaseURL, zoneID)
 	req, err := requests.Do(reqURL, http.MethodGet, c.APIKey, nil, nil)
 	if err != nil {
 		return nil, err
@@ -70,7 +70,7 @@ func (c *Client) GetSnapshots(zoneID string) ([]Snapshot, error) {
 
 // GetSnapshotDetails returns details of a snapshot.
 func (c *Client) GetSnapshotDetails(zoneID, snapshotID string) (*SnapshotContent, error) {
-	reqURL := fmt.Sprintf("%s/zones/%s/snapshots/%s", defaultBaseURL, zoneID, snapshotID)
+	reqURL := fmt.Sprintf("%s/zones/%s/snapshots/%s", c.defaultBaseURL, zoneID, snapshotID)
 	req, err := requests.Do(reqURL, http.MethodGet, c.APIKey, nil, nil)
 	if err != nil {
 		return nil, err
@@ -100,7 +100,7 @@ func (c *Client) GetSnapshotDetails(zoneID, snapshotID string) (*SnapshotContent
 
 // CreateSnapshot creates a new snapshopt for the given zone.
 func (c *Client) CreateSnapshot(zoneID string) (*SnapshotCreate, error) {
-	reqURL := fmt.Sprintf("%s/zones/%s/snapshots", defaultBaseURL, zoneID)
+	reqURL := fmt.Sprintf("%s/zones/%s/snapshots", c.defaultBaseURL, zoneID)
 	extraHeaders := make(map[string]string)
 	extraHeaders["Content-Type"] = "application/json"
 

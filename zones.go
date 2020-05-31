@@ -9,8 +9,6 @@ import (
 	"github.com/sgmac/gandigo/internal/requests"
 )
 
-const defaultBaseURL = "https://dns.api.gandi.net/api/v5/"
-
 // ErrNonAPIKey holds errors when API key is not found.
 var ErrNonAPIKey = errors.New("not API Key defined")
 
@@ -39,7 +37,7 @@ type ZoneResponse struct {
 
 // GetZones retrieves a list of zones.
 func (c *Client) GetZones() ([]ZoneResponse, error) {
-	reqURL := fmt.Sprintf("%s/zones", defaultBaseURL)
+	reqURL := fmt.Sprintf("%s/zones", c.defaultBaseURL)
 	req, err := requests.Do(reqURL, http.MethodGet, c.APIKey, nil, nil)
 	if err != nil {
 		return nil, err
