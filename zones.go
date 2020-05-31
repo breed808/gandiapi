@@ -14,10 +14,10 @@ const defaultBaseURL = "https://dns.api.gandi.net/api/v5/"
 // ErrNonAPIKey holds errors when API key is not found.
 var ErrNonAPIKey = errors.New("not API Key defined")
 
-// ErrHTTPForbidden returns HTTP 403
+// ErrHTTPForbidden returns HTTP 403.
 var ErrHTTPForbidden = errors.New("request forbidden")
 
-// ErrBadRequest returns HTTP 400
+// ErrBadRequest returns HTTP 400.
 var ErrBadRequest = errors.New("HTTP 400 bad request")
 
 // ZoneResponse struct stores response from zones endpoint.

@@ -38,7 +38,7 @@ type SnapshotCreate struct {
 	UUID    string `json:"uuid"`
 }
 
-// GetSnapshots returns a list of snapshots
+// GetSnapshots returns a list of snapshots.
 func (c *Client) GetSnapshots(zoneID string) ([]Snapshot, error) {
 	reqURL := fmt.Sprintf("%s/zones/%s/snapshots", defaultBaseURL, zoneID)
 	req, err := requests.Do(reqURL, http.MethodGet, c.APIKey, nil, nil)
@@ -68,7 +68,7 @@ func (c *Client) GetSnapshots(zoneID string) ([]Snapshot, error) {
 	return snapshotResponse, nil
 }
 
-// GetSnapshotDetails returns details of a snapshot
+// GetSnapshotDetails returns details of a snapshot.
 func (c *Client) GetSnapshotDetails(zoneID, snapshotID string) (*SnapshotContent, error) {
 	reqURL := fmt.Sprintf("%s/zones/%s/snapshots/%s", defaultBaseURL, zoneID, snapshotID)
 	req, err := requests.Do(reqURL, http.MethodGet, c.APIKey, nil, nil)

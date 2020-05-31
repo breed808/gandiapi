@@ -10,7 +10,7 @@ import (
 	"github.com/sgmac/gandigo/internal/requests"
 )
 
-// Record represents a Record object
+// Record represents a Record object.
 type Record struct {
 	RrsetType   string   `json:"rrset_type"`
 	RrsetTTL    int      `json:"rrset_ttl"`
@@ -19,7 +19,7 @@ type Record struct {
 	RrsetValues []string `json:"rrset_values"`
 }
 
-// GetRecords returns a slice of Record
+// GetRecords returns a slice of Record.
 func (c *Client) GetRecords(zoneID string) ([]Record, error) {
 	reqURL := fmt.Sprintf("%s/zones/%s/records", defaultBaseURL, zoneID)
 	req, err := requests.Do(reqURL, http.MethodGet, c.APIKey, nil, nil)
@@ -121,7 +121,7 @@ func (c *Client) GetRecordsText(zoneID string) (string, error) {
 	return text, nil
 }
 
-// DeleteRecord removes a given record name
+// DeleteRecord removes a given record name.
 func (c *Client) DeleteRecord(zoneID, recordName string) error {
 	reqURL := fmt.Sprintf("%s/zones/%s/records/%s", defaultBaseURL, zoneID, recordName)
 	req, err := requests.Do(reqURL, http.MethodDelete, c.APIKey, nil, nil)
@@ -177,7 +177,7 @@ func (c *Client) DeleteRecordsZone(zoneID string) error {
 	return nil
 }
 
-// DeleteRecordType deletes a record that matches name and type
+// DeleteRecordType deletes a record that matches name and type.
 func (c *Client) DeleteRecordType(zoneID, recordName, recordType string) error {
 	reqURL := fmt.Sprintf("%s/zones/%s/records/%s/%s", defaultBaseURL, zoneID, recordName, recordType)
 
