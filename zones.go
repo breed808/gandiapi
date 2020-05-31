@@ -5,7 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
+
+	"github.com/sgmac/gandigo/internal/requests"
 )
 
 const defaultBaseURL = "https://dns.api.gandi.net/api/v5/"
@@ -38,20 +39,13 @@ type ZoneResponse struct {
 
 // GetZones retrieves a list of zones.
 func (c *Client) GetZones() ([]ZoneResponse, error) {
-	urlZones := fmt.Sprintf("%s/zones", defaultBaseURL)
-	u, err := url.Parse(urlZones)
+	reqURL := fmt.Sprintf("%s/zones", defaultBaseURL)
+	req, err := requests.Do(reqURL, http.MethodGet, c.APIKey, nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req := http.Request{
-		URL:    u,
-		Header: make(http.Header),
-	}
-
-	req.Header.Add("X-Api-Key", c.APIKey)
-
-	resp, err := c.http.Do(&req)
+	resp, err := c.http.Do(req)
 	if err != nil {
 		return nil, err
 	}
