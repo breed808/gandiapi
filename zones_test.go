@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"reflect"
 	"testing"
 )
@@ -45,15 +44,8 @@ func TestGetZones(t *testing.T) {
 ]
 `)
 
-	mux := http.NewServeMux()
-	server := httptest.NewServer(mux)
-
-	options := OptsClient{APIURL: server.URL}
-
-	client, err := NewClient(&options)
-	if err != nil {
-		t.Errorf("got error with NewClient %v", err)
-	}
+	client, mux, teardown := setup()
+	defer teardown()
 
 	mux.HandleFunc("/zones", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, string(responseData))
