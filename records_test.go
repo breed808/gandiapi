@@ -110,3 +110,25 @@ func TestGetRecords(t *testing.T) {
 		t.Errorf("client.GetRecords() got %v expected %v\n", records, expected)
 	}
 }
+
+func TestCreateRecord(t *testing.T) {
+	mockZoneID := "12345678"
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/zones/12345678/records", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, string([]byte(`{"message": "DNS Record Created"}`)))
+	})
+
+	data := Record{
+		RrsetType:   "A",
+		RrsetTTL:    300,
+		RrsetName:   "amazing-cli",
+		RrsetValues: []string{"18.185.88.103"},
+	}
+
+	err := client.CreateRecord(data, mockZoneID)
+	if err != nil {
+		t.Errorf("got error with CreateError %v", err)
+	}
+}
