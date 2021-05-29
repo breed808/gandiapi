@@ -1,21 +1,23 @@
 # Gandigo
 
-Go API Client to interact with Gandi.net services. This implements the [RESTful HTTP API](https://doc.livedns.gandi.net/). Unfortunately this API will not have more future developments, so I stopped working on the Go client. However, this is still a good example on how to implement a Go API client.
+Go API Client to interact with Gandi.net services. This implements part of the [LiveDNS API](https://api.gandi.net/docs/livedns/) and part of the [Domain API](https://api.gandi.net/docs/domains/).
+
+This implementation was forked from the older [implementation by sgmac](https://github.com/sgmac/api-gandi)
 
 The current implementation requires Go 1.14 and uses modules.
 
 ## Install 
 
-Import `github.com/sgmac/gandigo` 
-
+`import "github.com/breed808/gandiapi"`
 
 ```go
-client, err := gandigo.NewClient(nil)
+
+client, err := gandiapi.NewClient(nil)
 if err != nil {
 	log.Fatal("error")
 }
 
-resp, err := client.GetZones()
+resp, err := client.GetDomains()
 if err != nil {
 	log.Fatal(err)
 }
@@ -29,7 +31,7 @@ If required, an `OptsClient` struct can be passed to override the default base u
 Adding a record:
 
 ```go
-data := gandigo.Record{
+data := gandiapi.Record{
  	RrsetType:   "A",
  	RrsetTTL:    300,
  	RrsetName:   "amazing-cli",
@@ -44,29 +46,15 @@ data := gandigo.Record{
 Delete a record.
 
 ```go
- err = client.DeleteRecordType(zoneID, "amazing-cli", "A")
+ err = client.DeleteRecord("example.com", "amazing-cli", "A")
 if err != nil {
 	fmt.Println(err)
 }
 ```
 
-Operations with snapshots.
-
-```go
-snapshots, err := client.GetSnapshots(zoneID)
-if err != nil {
-	log.Fatal(err)
-}
-
-details, err := client.GetSnapshotDetails(zoneID, snapshotID)
-if err != nil {
-	log.Fatal(err)
-}
-fmt.Println(details)
-```
-
 ## License
 
+Copyright [2021] [Ben Reedy]
 Copyright [2020] [Sergio Galvan]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:

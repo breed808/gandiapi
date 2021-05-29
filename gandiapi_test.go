@@ -1,4 +1,4 @@
-package gandigo
+package gandiapi
 
 import (
 	"log"

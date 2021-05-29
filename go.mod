@@ -1,3 +1,3 @@
-module github.com/sgmac/gandigo
+module github.com/breed808/gandiapi
 
-go 1.14
+go 1.16

@@ -1,4 +1,4 @@
-package gandigo
+package gandiapi
 
 import (
 	"net/http"
@@ -24,7 +24,7 @@ func NewClient(opts *OptsClient) (*Client, error) {
 
 	if opts == nil {
 		opts = &OptsClient{}
-		opts.APIURL = "https://dns.api.gandi.net/api/v5/"
+		opts.APIURL = "https://api.gandi.net/v5/"
 	}
 
 	c := &Client{
