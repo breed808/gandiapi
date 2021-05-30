@@ -14,11 +14,9 @@ func create_request(reqURL, httpMethod, APIKey string, headers map[string]string
 
 	req.Header.Add("Authorization", "Apikey "+APIKey)
 
-	if headers != nil {
-		for k, v := range headers {
-			req.Header.Add(k, v)
-		}
-	}
+    for k, v := range headers {
+        req.Header.Add(k, v)
+    }
 
 	return req, nil
 }
