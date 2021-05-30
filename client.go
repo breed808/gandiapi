@@ -13,24 +13,25 @@ type Client struct {
 	defaultBaseURL string
 }
 
-// OptsClient allows to define options for the client
+// OptsClient allows to define options for the client.
 type OptsClient struct {
 	APIURL string
+	APIKey string
 }
 
 // NewClient returns a client.
 func NewClient(opts *OptsClient) (*Client, error) {
-	APIKey := os.Getenv("GANDI_API_KEY")
-
 	if opts == nil {
 		opts = &OptsClient{}
 		opts.APIURL = "https://api.gandi.net/v5/"
+		opts.APIKey = os.Getenv("GANDI_API_KEY")
 	}
 
 	c := &Client{
 		http:           &http.Client{},
-		APIKey:         APIKey,
+		APIKey:         opts.APIKey,
 		defaultBaseURL: opts.APIURL,
 	}
+
 	return c, nil
 }
