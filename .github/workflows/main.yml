@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: golang:1.16.4-alpine3.13
+      env:
+        CGO_ENABLED: 0
+    steps:
+    - name: Checkout files
+      uses: actions/checkout@v2
+    - name: Run tests
+      run: go test -v 
