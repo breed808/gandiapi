@@ -83,3 +83,37 @@ func TestGetDomains(t *testing.T) {
 	}
 
 }
+
+func TestCreateDomain(t *testing.T) {
+	mockDomainName := "example.org"
+	client, mux, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/livedns/domains/"+mockDomainName+"/records", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, string([]byte(`{"status": "success"}`)))
+	})
+
+	contact := DomainContact{
+		City:       "Paris",
+		Given:      "Alice",
+		Family:     "Doe",
+		Zip:        "75001",
+		Country:    "FR",
+		Streetaddr: "5 rue neuve",
+		Phone:      "+33.123456789",
+		State:      "FR-J",
+		Type:       "individual",
+		Email:      "alice@example.org",
+	}
+
+	data := DomainCreateRequest{
+		Fqdn:     "example.com",
+		Owner:    contact,
+		Duration: 5,
+	}
+
+	err := client.CreateDomain(data, true)
+	if err != nil {
+		t.Errorf("got error with CreateError %v", err)
+	}
+}
