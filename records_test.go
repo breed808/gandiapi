@@ -127,7 +127,7 @@ func TestCreateRecord(t *testing.T) {
 		RrsetValues: []string{"18.185.88.103"},
 	}
 
-	err := client.CreateRecord(data, mockDomainName)
+	_, err := client.CreateRecord(data, mockDomainName)
 	if err != nil {
 		t.Errorf("got error with CreateError %v", err)
 	}

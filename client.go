@@ -23,6 +23,10 @@ func NewClient(apiKey string, debug, dryRun bool) *Client {
 	return &Client{apiKey: apiKey, endpoint: "https://api.gandi.net/v5/", debug: debug, dryRun: dryRun, httpClient: &http.Client{}}
 }
 
+func (c *Client) SetEndpoint(endpoint string) {
+	c.endpoint = endpoint
+}
+
 func (c *Client) ask(method, path string, params, recipient interface{}) (http.Header, error) {
 	resp, err := c.do(method, path, params, nil)
 	if err != nil {

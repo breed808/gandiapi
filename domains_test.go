@@ -85,11 +85,11 @@ func TestGetDomains(t *testing.T) {
 }
 
 func TestCreateDomain(t *testing.T) {
-	mockDomainName := "example.org"
+	mockDomainName := "example.com"
 	client, mux, teardown := setup()
 	defer teardown()
 
-	mux.HandleFunc("/livedns/domains/"+mockDomainName+"/records", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/domain/domains/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, string([]byte(`{"status": "success"}`)))
 	})
 
@@ -107,12 +107,12 @@ func TestCreateDomain(t *testing.T) {
 	}
 
 	data := DomainCreateRequest{
-		Fqdn:     "example.com",
+		Fqdn:     mockDomainName,
 		Owner:    contact,
 		Duration: 5,
 	}
 
-	err := client.CreateDomain(data, true)
+	err := client.CreateDomain(data)
 	if err != nil {
 		t.Errorf("got error with CreateError %v", err)
 	}
