@@ -1,27 +1,6 @@
 package gandiapi
 
-import (
-	"bytes"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"io"
-	"net/http"
-	"time"
-)
-
-// ErrNonAPIKey holds errors when API key is not found.
-var ErrNonAPIKey = errors.New("Bad authentication attempt due to incorrect API key")
-
-// ErrHTTPForbidden returns HTTP 403.
-var ErrHTTPForbidden = errors.New("request forbidden")
-
-// ErrBadRequest returns HTTP 400.
-var ErrBadRequest = errors.New("HTTP 400 bad request")
-
-var ErrNotFound = errors.New("HTTP 404 API object not found")
-
-var ErrAlreadyExists = errors.New("HTTP 409 API object already exists")
+import "time"
 
 // DomainResponse struct stores response from zones endpoint.
 type DomainResponse struct {
@@ -133,79 +112,14 @@ type DomainCreateRequest struct {
 }
 
 // GetDomains returns a list of domains owned by the current user, as defined by the client API Key.
-func (c *Client) GetDomains() ([]DomainResponse, error) {
-	reqURL := fmt.Sprintf("%s/domain/domains", c.defaultBaseURL)
-	req, err := create_request(reqURL, http.MethodGet, c.APIKey, nil, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	switch resp.StatusCode {
-	case http.StatusForbidden:
-		return nil, ErrHTTPForbidden
-	case http.StatusUnauthorized:
-		return nil, ErrNonAPIKey
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	domainResponse := make([]DomainResponse, 0)
-	err = json.Unmarshal(body, &domainResponse)
-	if err != nil {
-		return nil, err
-	}
-
-	return domainResponse, nil
+func (c *Client) GetDomains() (resp []DomainResponse, err error) {
+	_, err = c.get("domain/domains", nil, &resp)
+	return
 }
 
 // CreateDomain registers a new domain name. Note that this is *NOT* a free operation!
 // Ensure your Gandi prepaid account has sufficient credit before performing this action.
-//
-// Setting the dryRun flag to `true` will ensure the API only checks the request's parameters;
-// the operation will not actually be performed.
-func (c *Client) CreateDomain(data DomainCreateRequest, dryRun bool) error {
-	reqURL := fmt.Sprintf("%s/domain/domains", c.defaultBaseURL)
-	dataJSON, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-
-	dataSend := bytes.NewReader(dataJSON)
-	extraHeaders := make(map[string]string)
-	extraHeaders["Content-Type"] = "application/json"
-	if dryRun {
-		extraHeaders["Dry-Run"] = "1"
-	}
-
-	req, err := create_request(reqURL, http.MethodPost, c.APIKey, extraHeaders, dataSend)
-	if err != nil {
-		return err
-	}
-
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return err
-	}
-
-	switch resp.StatusCode {
-	case http.StatusForbidden:
-		return ErrHTTPForbidden
-	case http.StatusUnauthorized:
-		return ErrNonAPIKey
-	}
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (c *Client) CreateDomain(data DomainCreateRequest) (err error) {
+	_, err = c.post("domain/domains", data, nil)
+	return
 }
