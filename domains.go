@@ -75,6 +75,13 @@ type DomainContact struct {
 	Zip        string `json:"zip,omitempty"`
 }
 
+type DomainContacts struct {
+	Admin   *DomainContact `json:"admin,omitempty"`
+	Billing *DomainContact `json:"billing,omitempty"`
+	Owner   *DomainContact `json:"owner,omitempty"`
+	Tech    *DomainContact `json:"tech,omitempty"`
+}
+
 // DomainCreateRequest is the data sent with a CreateDomain request
 type DomainCreateRequest struct {
 	Fqdn   string        `json:"fqdn"`
@@ -121,5 +128,39 @@ func (c *Client) GetDomains() (resp []DomainResponse, err error) {
 // Ensure your Gandi prepaid account has sufficient credit before performing this action.
 func (c *Client) CreateDomain(data DomainCreateRequest) (err error) {
 	_, err = c.post("domain/domains", data, nil)
+	return
+}
+
+// GetDomainContacts returns all contacts for the specified domain.
+func (c *Client) GetDomainContacts(fqdn string) (resp DomainContacts, err error) {
+	_, err = c.get("domain/domains/"+fqdn+"/contacts", nil, &resp)
+	return
+}
+
+// SetDomainContacts updates contacts for the specified domain. Note that only the admin, tech and billing contact
+// information can be changed.
+func (c *Client) SetDomainContacts(fqdn string, contacts DomainContacts) (err error) {
+	_, err = c.patch("domain/domains/"+fqdn+"/contacts", contacts, nil)
+	return
+}
+
+// SetDomainOwner sets the owner information for the specified domain.
+// Information that would trigger a full change of ownership cannot be changed, such as names.
+func (c *Client) SetDomainOwner(fqdn string, contact DomainContact) (err error) {
+	_, err = c.put("domain/domains/"+fqdn+"/contacts/owner", contact, nil)
+	return
+}
+
+// SetDomainAutoRenew sets the automatic renewal configuration for the specified domain
+func (c *Client) SetDomainAutoRenew(fqdn, org_id string, enabled bool, duration int) (err error) {
+	_, err = c.patch("domain/domains/"+fqdn+"/autorenew", struct {
+		enabled  bool
+		duration int
+		org_id   string
+	}{
+		enabled:  enabled,
+		duration: duration,
+		org_id:   org_id,
+	}, nil)
 	return
 }
